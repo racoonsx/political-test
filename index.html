@@ -79,12 +79,105 @@
             margin-bottom: 20px;
             border-radius: 8px;
         }
+        
+        /* ESTILO PARA CONTENER PREGUNTA Y BOTÓN (NUEVO) */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px; /* Separación con las opciones */
+        }
 
         .question-text {
+            /* Se modifica este estilo para funcionar dentro de .question-header */
             font-size: 1.15em;
-            margin-bottom: 20px;
             font-weight: 500;
+            flex-grow: 1; 
+            padding-right: 10px; /* Espacio antes del botón */
         }
+        
+        /* --- NUEVOS ESTILOS PARA EL BOTÓN DE INFORMACIÓN --- */
+        .more-info-btn {
+            background: none;
+            border: 1px solid var(--color-primary-blue);
+            color: var(--color-primary-blue);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            white-space: nowrap; /* Evita que el texto se parta */
+            margin-top: 5px; /* Ajuste vertical */
+        }
+
+        .more-info-btn:hover {
+            background-color: var(--color-primary-blue);
+            color: var(--color-white);
+        }
+
+        /* --- ESTILOS PARA LA VENTANA MODAL (POP-UP) --- */
+        .info-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .info-modal {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 90vh; 
+            overflow-y: auto; 
+        }
+
+        .modal-content h3 {
+            color: var(--color-secondary-blue);
+            margin-top: 0;
+            border-bottom: 2px solid var(--color-neutral);
+            padding-bottom: 10px;
+        }
+
+        .modal-content p {
+            font-size: 1em;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .modal-content strong {
+            color: var(--color-primary-blue);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #AAA;
+        }
+        /* FIN ESTILOS MODAL */
+
+        /* ESTILO PARA EL CONTADOR DE VISITAS (NUEVO) */
+        .visitor-count {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+        }
+
 
         .likert-scale {
             display: flex;
@@ -324,10 +417,18 @@
             </div>
         </div>
     </div>
-
+    
+    <div id="info-modal-overlay" class="info-modal-overlay" style="display:none;" onclick="closeInfoModal()">
+        <div id="info-modal" class="info-modal" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeInfoModal()">&times;</button>
+            <div id="modal-content" class="modal-content">
+                </div>
+        </div>
+    </div>
     <footer>
         <div class="container" style="text-align: center; color: #666; font-size: 0.8em; margin-top: 40px;">
             <p>&copy; 2025 Test Ideológico TICH. Análisis basado en plataformas públicas y posturas ideológicas.</p>
+            <p id="visitor-counter-text" class="visitor-count" style="margin-top: 5px;"></p>
         </div>
     </footer>
 
@@ -369,58 +470,58 @@
         { value: 5, label: "Totalmente de Acuerdo (TA)" }
     ];
 
-// CUESTIONARIO DE IDEONEIDAD IDEOLÓGICA - VERSIÓN SIMPLIFICADA
+// CUESTIONARIO DE IDEONEIDAD IDEOLÓGICA - VERSIÓN CON INFORMACIÓN DE CONTEXTO
 const QUESTIONS = [
     // --- EJE 1: Modelo Económico y Rol del Estado ---
-    { id: 1, axis: 'Económico', text: '¿El gobierno debería invertir más en salud, educación y energía?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
-    { id: 2, axis: 'Económico', text: '¿Es mejor atraer empresas extranjeras que inviertan en el país que aumentar el gasto del gobierno?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
-    { id: 3, axis: 'Económico', text: '¿El gobierno debería crear un banco para apoyar a nuevos emprendedores hondureños?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
-    { id: 4, axis: 'Económico', text: '¿Deberían volver las zonas especiales de inversión (ZEDES) si ayudan a generar empleo?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
-    { id: 5, axis: 'Económico', text: '¿Se deben privatizar aquellas empresas estatales que estén reportando pérdidas (ENEE)?', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 4 } },
+    { id: 1, axis: 'Económico', text: '¿El gobierno debería invertir más en salud, educación y energía?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 }, info_honduras: { title: 'Prioridad en el Gasto Social y Servicios Públicos', pro: 'Se propone que una mayor inversión estatal en sectores clave como salud, educación y energía es fundamental para mejorar la calidad de vida de la población, reducir la desigualdad y asegurar servicios esenciales de forma accesible.', con: 'Otros señalan que un aumento significativo del gasto público en estos sectores podría generar ineficiencia, aumentar la deuda pública o desplazar la inversión privada necesaria para el crecimiento económico.' } },
+    { id: 2, axis: 'Económico', text: '¿Es mejor atraer empresas extranjeras que inviertan en el país que aumentar el gasto del gobierno?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 }, info_honduras: { title: 'Estrategia de Desarrollo: Inversión Extranjera vs. Gasto Estatal.', pro: 'La atracción de capital extranjero se considera la vía más eficiente para crear empleos formales, traer tecnología y fortalecer la economía sin presionar las finanzas públicas. La certidumbre tributaria es vista como crítica para esto.', con: 'Argumentos en contra advierten que una dependencia excesiva de la inversión externa puede generar vulnerabilidad económica y que la prioridad debe ser fortalecer el mercado interno y la inversión pública nacional.' } },
+    { id: 3, axis: 'Económico', text: '¿El gobierno debería crear un banco para apoyar a nuevos emprendedores hondureños?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 2, "PINU-SD": 5, "DC": 4 }, info_honduras: { title: 'Banca Estatal para Emprendedores y PYMES.', pro: 'La propuesta es llenar un vacío de crédito que la banca privada no cubre, ofreciendo condiciones favorables para fomentar la pequeña y mediana empresa nacional, generando oportunidades de inclusión financiera.', con: 'Los críticos señalan que este tipo de instituciones suelen ser ineficientes, politizarse y distorsionar el mercado crediticio, siendo más efectivo enfocar los recursos en garantías o subsidios a la banca privada.' } },
+    { id: 4, axis: 'Económico', text: '¿Deberían volver las zonas especiales de inversión (ZEDES) si ayudan a generar empleo?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 }, info_honduras: { title: 'Debate sobre Zonas de Desarrollo Económico y Soberanía.', pro: 'Quienes apoyan estas zonas argumentan que son herramientas poderosas para atraer inversión masiva, generar miles de empleos y promover el desarrollo en regiones específicas.', con: 'Existe una fuerte preocupación sobre la pérdida de soberanía, la violación de derechos constitucionales y el riesgo de crear "mini-Estados" con jurisdicciones separadas que eluden la justicia nacional.' } },
+    { id: 5, axis: 'Económico', text: '¿Se deben privatizar aquellas empresas estatales que estén reportando pérdidas (ENEE)?', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 4 }, info_honduras: { title: 'Eficiencia Energética y Propiedad Estatal.', pro: 'Una visión propone que la privatización de empresas como la ENEE es necesaria para eliminar el drenaje financiero al Estado, mejorar la eficiencia y garantizar un servicio de mayor calidad a través de la inversión privada.', con: 'La visión contraria advierte que la privatización puede resultar en un aumento de tarifas para el consumidor, la pérdida del control estatal sobre servicios esenciales y que la solución real es sanear y fortalecer la gestión de las instituciones públicas.' } },
 
     // --- EJE 2: Política Fiscal y Tributaria ---
-    { id: 6, axis: 'Fiscal', text: '¿Las grandes empresas deberían pagar más impuestos para reducir la desigualdad?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
-    { id: 7, axis: 'Fiscal', text: '¿Las decisiones sobre impuestos deberían tomarse en diálogo con las empresas y no solo por el gobierno?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 3, "DC": 3 } },
-    { id: 8, axis: 'Fiscal', text: '¿Subir impuestos a las empresas puede poner en riesgo los empleos?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
-    { id: 9, axis: 'Fiscal', text: '¿El Estado debería seguir dando subsidios en energía o combustibles para ayudar a los más pobres?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 3, "DC": 3 } },
-    { id: 10, axis: 'Fiscal', text: 'Se debe dolarizar la economía', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 2, "PINU-SD": 1, "DC": 5 } },
+    { id: 6, axis: 'Fiscal', text: '¿Las grandes empresas deberían pagar más impuestos para reducir la desigualdad?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 3 }, info_honduras: { title: 'Progresividad Fiscal para la Redistribución de la Riqueza.', pro: 'Se propone que una estructura tributaria más progresiva, donde las empresas con mayores ingresos aporten un porcentaje más alto, es un mecanismo clave para financiar el gasto social y reducir la marcada desigualdad en el país.', con: 'La postura contraria advierte que aumentar la carga fiscal a las grandes empresas desincentiva la inversión, fomenta la fuga de capitales o incluso pone en riesgo los empleos, afectando el crecimiento económico.' } },
+    { id: 7, axis: 'Fiscal', text: '¿Las decisiones sobre impuestos deberían tomarse en diálogo con las empresas y no solo por el gobierno?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 3, "DC": 3 }, info_honduras: { title: 'Diálogo con el Sector Privado en la Política Tributaria.', pro: 'Se considera que la estabilidad económica pasa por un diálogo constante con el sector privado, asegurando que las decisiones fiscales no afecten la inversión ni la generación de empleo.', con: 'Otros argumentan que el diálogo constante con la empresa privada puede resultar en un Estado capturado por intereses corporativos y que el gobierno, electo democráticamente, debe tener la autonomía para tomar decisiones que beneficien a las mayorías.' } },
+    { id: 8, axis: 'Fiscal', text: '¿Subir impuestos a las empresas puede poner en riesgo los empleos?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 }, info_honduras: { title: 'Impacto Laboral de la Carga Tributaria Empresarial.', pro: 'Sectores empresariales y económicos señalan que un incremento en impuestos a la producción o las ganancias puede llevar a las empresas a reducir personal, detener expansiones o incluso cerrar operaciones.', con: 'La visión social argumenta que la evasión y la elusión fiscal son el verdadero problema y que si las empresas pagan lo justo, el Estado tendrá más recursos para invertir en infraestructura y seguridad, lo cual a su vez fomenta un mejor ambiente para los negocios.' } },
+    { id: 9, axis: 'Fiscal', text: '¿El Estado debería seguir dando subsidios en energía o combustibles para ayudar a los más pobres?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 3, "DC": 3 }, info_honduras: { title: 'Subsidios a Servicios Básicos y Gasto Público.', pro: 'Los subsidios a la energía eléctrica y combustibles son defendidos como una medida necesaria para contener la inflación en artículos de primera necesidad y proteger directamente el ingreso de las familias más vulnerables.', con: 'Expertos económicos critican que los subsidios son costosos para las finanzas públicas, a menudo benefician a quienes no lo necesitan y que el dinero podría invertirse mejor en infraestructura o en programas sociales dirigidos a la pobreza extrema.' } },
+    { id: 10, axis: 'Fiscal', text: 'Se debe dolarizar la economía', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 2, "PINU-SD": 1, "DC": 5 }, info_honduras: { title: 'Viabilidad de la Dolarización de la Moneda.', pro: 'Se propone que adoptar el dólar eliminaría la inflación, reduciría las tasas de interés y daría estabilidad a largo plazo, atrayendo inversión y eliminando el riesgo cambiario.', con: 'Expertos del Banco Central y economistas advierten que Honduras no cumple con las condiciones para la dolarización. Argumentan que se perdería soberanía monetaria y la capacidad de respuesta a crisis económicas.' } },
 
     // --- EJE 3: Seguridad y Derechos Constitucionales ---
-    { id: 11, axis: 'Seguridad', text: 'Está de acuerdo con aplicar medidas más duras contra el crimen (como el Estado de excepción), aunque limiten algunas libertades?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
-    { id: 12, axis: 'Seguridad', text: '¿Se debe elevar a rango constitucional a la Policía Militar?', impact_factor: 1.3, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
-    { id: 13, axis: 'Seguridad', text: '¿La seguridad debería basarse más en educación, oportunidades y justicia que en castigos fuertes?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 1, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
-    { id: 14, axis: 'Seguridad', text: '¿El gobierno debería apoyar más a las familias y comunidades para prevenir el crimen?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 2, "Liberal": 2, "PINU-SD": 3, "DC": 5 } },
-    { id: 15, axis: 'Seguridad', text: '¿Dar más poder al presidente para temas de seguridad puede ser peligroso para la democracia?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 4, "PINU-SD": 5, "DC": 3 } },
+    { id: 11, axis: 'Seguridad', text: 'Está de acuerdo con aplicar medidas más duras contra el crimen (como el Estado de excepción), aunque limiten algunas libertades?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 }, info_honduras: { title: 'Medidas Extraordinarias y Garantías Constitucionales.', pro: 'Los defensores argumentan que la gravedad de la extorsión y el crimen organizado requieren suspender temporalmente ciertas garantías para que las fuerzas de seguridad puedan actuar con rapidez y contundencia.', con: 'Organismos de derechos humanos y analistas legales advierten que la suspensión de garantías es una medida que viola los derechos fundamentales, ha demostrado ser ineficaz y aumenta el riesgo de abusos por parte de las fuerzas de seguridad.' } },
+    { id: 12, axis: 'Seguridad', text: '¿Se debe elevar a rango constitucional a la Policía Militar?', impact_factor: 1.3, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 2 }, info_honduras: { title: 'El Rol de la Policía Militar en la Seguridad Pública.', pro: 'Se busca asegurar la permanencia y el poder de la Policía Militar (PMOP) como una fuerza de choque efectiva, capaz de restaurar el orden en áreas críticas y de alta criminalidad.', con: 'Expertos en DDHH y constitucionalistas advierten que militarizar la seguridad pública contraviene la Constitución. Se insiste en que las Fuerzas Armadas están entrenadas para combatir enemigos, no para interactuar con la población civil.' } },
+    { id: 13, axis: 'Seguridad', text: '¿La seguridad debería basarse más en educación, oportunidades y justicia que en castigos fuertes?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 1, "Liberal": 2, "PINU-SD": 5, "DC": 4 }, info_honduras: { title: 'Estrategias de Seguridad: Prevención vs. Punitividad.', pro: 'Se aboga por una estrategia que ataque las causas profundas del crimen, invirtiendo en desarrollo social, oportunidades y una justicia eficiente para lograr resultados sostenibles.', con: 'Quienes apoyan la "mano dura" sostienen que solo el castigo severo y la represión enérgica son capaces de disuadir a los criminales y devolver la tranquilidad a la población en el corto plazo, dada la urgencia.' } },
+    { id: 14, axis: 'Seguridad', text: '¿El gobierno debería apoyar más a las familias y comunidades para prevenir el crimen?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 2, "Liberal": 2, "PINU-SD": 3, "DC": 5 }, info_honduras: { title: 'Inversión en Programas de Prevención Social.', pro: 'Se propone invertir en programas que fortalezcan los vínculos familiares, brinden oportunidades educativas y de ocio a los jóvenes, para atacar las raíces sociales del crimen.', con: 'La postura crítica señala que los programas de prevención social son costosos, lentos y de difícil medición, y que la prioridad de los recursos debe ser el control territorial por la fuerza para contener la crisis actual.' } },
+    { id: 15, axis: 'Seguridad', text: '¿Dar más poder al presidente para temas de seguridad puede ser peligroso para la democracia?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 4, "PINU-SD": 5, "DC": 3 }, info_honduras: { title: 'Concentración de Poder en el Ejecutivo y Democracia.', pro: 'Organizaciones de sociedad civil advierten que otorgar poder excesivo al Ejecutivo, especialmente en materia de seguridad, puede llevar a un autoritarismo y debilitar la separación de poderes.', con: 'Una postura de línea dura argumenta que solo un Ejecutivo fuerte y con poder concentrado es capaz de tomar las decisiones drásticas y rápidas que se necesitan para eliminar a los grupos criminales que amenazan la estabilidad de la nación.' } },
 
     // --- EJE 4: Lucha contra la Corrupción y Justicia ---
-    { id: 16, axis: 'Corrupción', text: '¿Se deben eliminar las leyes que protegen a políticos corruptos para que la CICIH funcione?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 4 } },
-    { id: 17, axis: 'Corrupción', text: 'Los fideicomisos y las Alianza Público Privada son esenciales para el desarrollo.', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 3 } },
-    { id: 18, axis: 'Corrupción', text: '¿Quitar la inmunidad a los políticos podría usarse para perseguir a los opositores?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 1 } },
-    { id: 19, axis: 'Corrupción', text: '¿El sistema judicial necesita más independencia y mejores condiciones para jueces y fiscales?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
-    { id: 20, axis: 'Corrupción', text: '¿La lucha contra la corrupción debe enfocarse en la transparencia y la ética en el gobierno?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
+    { id: 16, axis: 'Corrupción', text: '¿Se deben eliminar las leyes que protegen a políticos corruptos para que la CICIH funcione?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 4 }, info_honduras: { title: 'Armonización Legal para la Lucha contra la Corrupción (CICIH).', pro: 'Sectores que impulsan la CICIH argumentan que aprobar la Ley de Colaboración Eficaz y eliminar la Ley de Secretos son fundamentales para desmantelar las redes de corrupción que operan en las instituciones estatales.', con: 'Existen dudas en el Congreso sobre si estas modificaciones podrían vulnerar derechos o ser utilizadas para la persecución política, argumentando que las leyes ya existentes son suficientes y que la clave está en el compromiso de los operadores de justicia actuales.' } },
+    { id: 17, axis: 'Corrupción', text: 'Los fideicomisos y las Alianza Público Privada son esenciales para el desarrollo.', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 3 }, info_honduras: { title: 'Transparencia en Mecanismos de Ejecución de Fondos.', pro: 'Se defiende que los fideicomisos y las APP, bien regulados, son herramientas necesarias para ejecutar grandes proyectos de infraestructura sin presionar el presupuesto nacional y con mayor agilidad.', con: 'La postura de cero tolerancia argumenta que estos vehículos han sido utilizados como fuentes de opacidad y corrupción, y que la única forma de garantizar la transparencia es a través de su eliminación o prohibición total.' } },
+    { id: 18, axis: 'Corrupción', text: '¿Quitar la inmunidad a los políticos podría usarse para perseguir a los opositores?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 1 }, info_honduras: { title: 'Inmunidad Parlamentaria (Fuero) y Persecución Política.', pro: 'Hay quienes temen que eliminar la inmunidad (fuero) de altos funcionarios sea usado para la persecución política de opositores, judicializando la política y debilitando la función legislativa.', con: 'Organismos de transparencia y sociedad civil insisten en que eliminar el fuero es un paso fundamental para combatir la impunidad, permitiendo investigar y juzgar a quienes se escudan en su cargo para cometer actos de corrupción.' } },
+    { id: 19, axis: 'Corrupción', text: '¿El sistema judicial necesita más independencia y mejores condiciones para jueces y fiscales?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 }, info_honduras: { title: 'Fortalecimiento e Independencia del Poder Judicial.', pro: 'La visión centrada en la justicia argumenta que la independencia y el presupuesto adecuado del Poder Judicial son la base de un Estado de Derecho, permitiendo que la ley se aplique a todos por igual.', con: 'La postura de "mano dura" propone que, si bien la independencia es importante, lo que se necesita es aumentar las penas para disuadir a los delincuentes, pues la población necesita sentir que los crímenes se castigan con severidad.' } },
+    { id: 20, axis: 'Corrupción', text: '¿La lucha contra la corrupción debe enfocarse en la transparencia y la ética en el gobierno?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 }, info_honduras: { title: 'Ética Pública y Prevención vs. Persecución Penal.', pro: 'Se propone priorizar la educación en ética, la simplificación de procesos y la máxima publicidad para prevenir la corrupción antes de que ocurra, atacando la cultura de la impunidad.', con: 'La visión punitiva insiste en que la corrupción es un delito y debe ser perseguida. Argumentan que mientras no haya castigo ejemplar para los grandes corruptos, cualquier programa de ética será ineficaz.' } },
 
     // --- EJE 5: Reforma Institucional y Meritocracia ---
-    { id: 21, axis: 'Institucional', text: '¿Los puestos públicos deberían darse por mérito y estudios, no por contactos políticos?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
-    { id: 22, axis: 'Institucional', text: '¿Las escuelas deberían enseñar más valores cívicos además de materias técnicas?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
-    { id: 23, axis: 'Institucional', text: '¿El Congreso debería forzar acuerdos políticos si es necesario para lograr cambios importantes?', impact_factor: 1.2, weights: { "LIBRE": 4, "Nacional": 2, "Liberal": 4, "PINU-SD": 1, "DC": 2 } },
-    { id: 24, axis: 'Institucional', text: '¿El Consejo Nacional Electoral debería tener técnicos independientes y no gente de partidos?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
-    { id: 25, axis: 'Institucional', text: '¿Debemos convertirnos en un Estado Libre Asociado de Estados Unidos?', impact_factor: 1.4, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 1, "PINU-SD": 1, "DC": 5 } },
+    { id: 21, axis: 'Institucional', text: '¿Los puestos públicos deberían darse por mérito y estudios, no por contactos políticos?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 }, info_honduras: { title: 'Meritocracia en el Servicio Civil y Despolitización.', pro: 'La sociedad civil propone que la única forma de mejorar la eficiencia estatal es a través de concursos transparentes y desvinculados de los ciclos políticos, asegurando que los más capacitados ocupen los cargos.', con: 'Una postura política argumenta que los puestos de confianza en el alto gobierno deben ser ocupados por personal del partido gobernante para garantizar que las políticas de gobierno se ejecuten fielmente.' } },
+    { id: 22, axis: 'Institucional', text: '¿Las escuelas deberían enseñar más valores cívicos además de materias técnicas?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 }, info_honduras: { title: 'El Rol de la Educación en la Formación Moral y Cívica.', pro: 'Sectores sociales y conservadores promueven que el Estado debe fortalecer la enseñanza cívica y moral para atacar la crisis social y ética que vive el país.', con: 'Otros argumentan que el rol principal de la educación es el desarrollo de habilidades científicas y técnicas, y que introducir "valores" específicos puede ser una forma de promover ideologías políticas o religiosas particulares.' } },
+    { id: 23, axis: 'Institucional', text: '¿El Congreso debería forzar acuerdos políticos si es necesario para lograr cambios importantes?', impact_factor: 1.2, weights: { "LIBRE": 4, "Nacional": 2, "Liberal": 4, "PINU-SD": 1, "DC": 2 }, info_honduras: { title: 'Consenso Político vs. Voluntad de la Mayoría.', pro: 'La visión de la mayoría gobernante indica que es su mandato aplicar su plan de gobierno. Si tienen los votos, deben legislar para evitar el estancamiento y cumplir las promesas de campaña.', con: 'Analistas democráticos señalan que la democracia requiere negociación y consenso. Usar la "aplanadora" legislativa sin diálogo debilita las instituciones y polariza el país.' } },
+    { id: 24, axis: 'Institucional', text: '¿El Consejo Nacional Electoral debería tener técnicos independientes y no gente de partidos?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 }, info_honduras: { title: 'Independencia Técnica de la Autoridad Electoral.', pro: 'La sociedad civil insiste en que la autoridad electoral debe ser independiente y técnica para garantizar la credibilidad, proponiendo que los consejeros sean seleccionados por mérito y experiencia.', con: 'La tradición política defiende que los partidos deben tener representación en el CNE, pues esto genera un equilibrio de poder que se vigila mutuamente, evitando la cooptación por el gobierno de turno.' } },
+    { id: 25, axis: 'Institucional', text: '¿Debemos convertirnos en un Estado Libre Asociado de Estados Unidos?', impact_factor: 1.4, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 1, "PINU-SD": 1, "DC": 5 }, info_honduras: { title: 'Estatus de Autonomía Nacional y Soberanía.', pro: 'Sectores marginales proponen esta figura como una forma de obtener beneficios económicos, estabilidad y seguridad bajo el paraguas de EE. UU., especialmente para facilitar la migración legal.', con: 'La mayoría del espectro político, juristas y académicos, rechaza esta idea por ser un atentado directo contra la soberanía e independencia del país, defendido por la Constitución.' } },
 
     // --- EJE 6: Derechos Sociales y Sexuales ---
-    { id: 26, axis: 'Social', text: '¿Debería permitirse el uso de la píldora de emergencia y debatirse el aborto por razones médicas?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 1 } },
-    { id: 27, axis: 'Social', text: '¿El matrimonio entre personas del mismo sexo no debería ser permitido en Honduras?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 2, "DC": 5 } },
-    { id: 28, axis: 'Social', text: '¿El gobierno debería proteger activamente a las personas LGBTIQ+ contra la violencia y la discriminación?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
-    { id: 29, axis: 'Social', text: '¿Se debe mantener la prohibición total del aborto y del matrimonio igualitario?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 5 } },
-    { id: 30, axis: 'Social', text: '¿Las políticas sociales deberían centrarse en apoyar a las familias y valores cristianos?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 3, "PINU-SD": 2, "DC": 5 } },
+    { id: 26, axis: 'Social', text: '¿Debería permitirse el uso de la píldora de emergencia y debatirse el aborto por razones médicas?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 1 }, info_honduras: { title: 'Salud Reproductiva y Derechos de la Mujer.', pro: 'Se propone que permitir el acceso a la Píldora Anticonceptiva de Emergencia (PAE) y debatir el aborto por razones médicas es un tema de salud pública y de derechos humanos de la mujer.', con: 'Sectores conservadores y religiosos defienden que se debe mantener la prohibición absoluta de la PAE y el aborto, argumentando que la vida comienza desde la concepción.' } },
+    { id: 27, axis: 'Social', text: '¿El matrimonio entre personas del mismo sexo no debería ser permitido en Honduras?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 2, "DC": 5 }, info_honduras: { title: 'Matrimonio Igualitario y el Principio de Igualdad.', pro: 'Activistas de derechos humanos argumentan que negarle el matrimonio o la unión de hecho a parejas del mismo sexo es un acto de discriminación que viola el principio de igualdad ante la ley.', con: 'Sectores conservadores de la sociedad y líderes religiosos se oponen, argumentando que el matrimonio es una unión exclusivamente entre un hombre y una mujer, y que se debe proteger la familia tradicional según valores cristianos.' } },
+    { id: 28, axis: 'Social', text: '¿El gobierno debería proteger activamente a las personas LGBTIQ+ contra la violencia y la discriminación?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 }, info_honduras: { title: 'Protección Legal contra la Discriminación por Orientación Sexual.', pro: 'Organizaciones de derechos humanos proponen crear leyes específicas para garantizar el acceso a derechos básicos sin sufrir violencia ni exclusión a la comunidad LGBTIQ+.', con: 'Los opositores argumentan que las protecciones constitucionales contra la discriminación ya existen para todos. Advierten que crear "leyes especiales" podría interpretarse como un trato preferencial o introducir la "ideología de género" en el marco legal.' } },
+    { id: 29, axis: 'Social', text: '¿Se debe mantener la prohibición total del aborto y del matrimonio igualitario?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 5 }, info_honduras: { title: 'Blindaje Constitucional de Temas Morales.', pro: 'Sectores conservadores defienden que "blindar" la Constitución es la única manera de proteger los valores morales y la familia tradicional de futuros cambios gubernamentales o decisiones de cortes.', con: 'Juristas y organismos de derechos humanos advierten que estos blindajes son una violación a tratados internacionales y un intento de anular el debate democrático y los derechos de las minorías.' } },
+    { id: 30, axis: 'Social', text: '¿Las políticas sociales deberían centrarse en apoyar a las familias y valores cristianos?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 3, "PINU-SD": 2, "DC": 5 }, info_honduras: { title: 'Base Moral vs. Base Laica de las Políticas Sociales.', pro: 'La visión conservadora sostiene que los valores cristianos son la base de la sociedad y que el Estado debe promover políticas que refuercen la familia tradicional bajo esta línea moral.', con: 'La postura laica argumenta que el Estado de Honduras es laico y que las políticas sociales deben diseñarse en función de evidencia científica y la necesidad social, respetando todas las formas de familia y creencias.' } },
 
     // --- EJE 7: Relaciones Internacionales y Migración ---
-    { id: 31, axis: 'Internacional', text: '¿Honduras debería acercarse más a países latinoamericanos de izquierda que a Estados Unidos?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 3, "PINU-SD": 2, "DC": 2 } },
-    { id: 32, axis: 'Internacional', text: '¿Honduras debería cooperar más con Estados Unidos en temas de seguridad y migración?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
-    { id: 33, axis: 'Internacional', text: '¿Honduras debería reconocer a China Taiwán?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 1, "DC": 5 } },
-    { id: 34, axis: 'Internacional', text: 'Las relaciones de Honduras con países como Rusia, Cuba y Venezuela son productivas para el país.', impact_factor: 1.4, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 1, "PINU-SD": 2, "DC": 1 } },
-    { id: 35, axis: 'Internacional', text: '¿Los migrantes deben recibir ayuda humanitaria y protección al pasar por Honduras?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } }
+    { id: 31, axis: 'Internacional', text: '¿Honduras debería acercarse más a países latinoamericanos de izquierda que a Estados Unidos?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 3, "PINU-SD": 2, "DC": 2 }, info_honduras: { title: 'Alineación Geopolítica e Independencia Regional.', pro: 'La postura de "anti-injerencia" busca un acercamiento con gobiernos de izquierda en la región para defender la soberanía y generar un bloque de contrapeso a la política tradicionalmente alineada a Washington.', con: 'La postura tradicional advierte que acercarse a estos países podría traer inestabilidad política, dañar la relación estratégica con Estados Unidos (socio principal) y afectar la imagen internacional del país.' } },
+    { id: 32, axis: 'Internacional', text: '¿Honduras debería cooperar más con Estados Unidos en temas de seguridad y migración?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 }, info_honduras: { title: 'Alianza Estratégica con Estados Unidos.', pro: 'Se sostiene que la alianza con EE. UU. es vital, ya que es el socio principal en migración, seguridad y aduanas, lo que se considera fundamental para la estabilidad económica y la seguridad nacional.', con: 'Los críticos argumentan que esta prioridad a menudo implica aceptar condiciones que violan la soberanía nacional, forzando a Honduras a actuar como un "muro" migratorio o implementar políticas que no benefician los intereses nacionales.' } },
+    { id: 33, axis: 'Internacional', text: '¿Honduras debería reconocer a China Taiwán?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 1, "DC": 5 }, info_honduras: { title: 'Eje Geopolítico: Alianzas con Occidente vs. Oriente.', pro: 'La postura de continuidad histórica o de pragmatismo económico argumenta que mantener la alianza con Taiwán es la mejor vía para asegurar cooperación y evitar complicaciones con Estados Unidos.', con: 'La postura de cambio argumenta que el reconocimiento a la República Popular China es una necesidad geopolítica y económica para acceder a un mercado más grande y atraer inversión global, sin ataduras ideológicas.' } },
+    { id: 34, axis: 'Internacional', text: 'Las relaciones de Honduras con países como Rusia, Cuba y Venezuela son productivas para el país.', impact_factor: 1.4, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 1, "PINU-SD": 2, "DC": 1 }, info_honduras: { title: 'Relaciones con Bloques Políticos Alternativos.', pro: 'La visión de izquierda busca diversificar las alianzas geopolíticas, argumentando que la cooperación con estos países puede abrir nuevas oportunidades comerciales, ideológicas y culturales fuera de la órbita tradicional.', con: 'La postura tradicionalista o de derecha advierte que alinearse con estos regímenes puede dañar la relación con socios clave como EE. UU. y Europa, así como afectar la imagen internacional de Honduras.' } },
+    { id: 35, axis: 'Internacional', text: '¿Los migrantes deben recibir ayuda humanitaria y protección al pasar por Honduras?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 }, info_honduras: { title: 'Tránsito Migratorio y Enfoque Humanitario.', pro: 'Organismos humanitarios defienden que la política migratoria debe ser de protección y ayuda, ya que los migrantes son vulnerables a la violencia, secuestro y extorsión durante su paso por el país.', con: 'Una postura de control estricto busca proteger las fronteras, argumentando que el país no tiene la infraestructura para manejar la crisis migratoria, y que la prioridad es la seguridad nacional y la de sus ciudadanos.' } }
 ];
-
+// --- FIN DEL CUESTIONARIO ---
 
 
     let currentQuestionIndex = 0;
@@ -434,6 +535,49 @@ const QUESTIONS = [
     const resultsContainer = document.getElementById('results-container');
     const progressFill = document.getElementById('progress-fill');
     const currentQuestionText = document.getElementById('current-question-text');
+
+    // --- NUEVAS FUNCIONES PARA EL MODAL DE INFORMACIÓN (AÑADIDA) ---
+    function showInfoModal(questionId) {
+        const question = QUESTIONS.find(q => q.id === questionId);
+        if (!question || !question.info_honduras) return;
+
+        const modalContent = document.getElementById('modal-content');
+        const info = question.info_honduras;
+
+        modalContent.innerHTML = `
+            <h3>${info.title}</h3>
+            <p><strong>Visión A:</strong> ${info.pro}</p>
+            <p><strong>Visión B:</strong> ${info.con}</p>
+        `;
+        document.getElementById('info-modal-overlay').style.display = 'flex';
+    }
+
+    function closeInfoModal() {
+        document.getElementById('info-modal-overlay').style.display = 'none';
+    }
+    // --- FIN NUEVAS FUNCIONES ---
+
+    // --- LÓGICA DEL CONTADOR DE VISITAS (AÑADIDA) ---
+    function initializeVisitorCounter() {
+        const counterElement = document.getElementById('visitor-counter-text');
+        
+        // Simulación de contador de visitas por sesión (almacenamiento local)
+        let visitCount = localStorage.getItem('tichVisitCount');
+        
+        if (visitCount === null) {
+            visitCount = 1;
+        } else {
+            visitCount = parseInt(visitCount) + 1;
+        }
+
+        // Almacenar el nuevo conteo
+        localStorage.setItem('tichVisitCount', visitCount.toString());
+        
+        // Mostrar el contador de forma sutil
+        counterElement.innerHTML = `Visitas totales: <strong>${visitCount.toLocaleString()}</strong>.`;
+    }
+    // --- FIN CONTADOR DE VISITAS ---
+
 
     function loadState() {
         const savedAnswers = sessionStorage.getItem('tichUserAnswers');
@@ -476,11 +620,15 @@ const QUESTIONS = [
             return match ? match[1].trim() : label.trim();
         };
 
+        // MODIFICACIÓN: Se añade question-header y el botón de información
         questionArea.innerHTML = `
             <div class="section-title">${axisTitle}</div>
-            <div class="question-card">
-                <div class="question-text">
-                    <strong>${index + 1}/${QUESTIONS.length}.</strong> ${question.text}
+            <div class="question-card" data-id="${question.id}">
+                <div class="question-header">
+                    <div class="question-text">
+                        <strong>${index + 1}/${QUESTIONS.length}.</strong> ${question.text}
+                    </div>
+                    ${question.info_honduras ? `<button class="more-info-btn" onclick="showInfoModal(${question.id})">Quiero más información</button>` : ''}
                 </div>
                 <div class="likert-scale">
                     ${LIKERT_OPTIONS.map(option => `
@@ -732,7 +880,11 @@ const QUESTIONS = [
         window.myRadarChart = new Chart(ctx, config);
     }
 
-    document.addEventListener('DOMContentLoaded', loadState);
+    // Inicializar el estado del test y el contador de visitas al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        loadState();
+        initializeVisitorCounter();
+    });
 </script>
 </body>
 </html>
