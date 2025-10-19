@@ -372,29 +372,29 @@
 // CUESTIONARIO DE IDEONEIDAD IDEOLÓGICA - VERSIÓN SIMPLIFICADA
 const QUESTIONS = [
     // --- EJE 1: Modelo Económico y Rol del Estado ---
-    { id: 1, axis: 'Económico', text: '¿El gobierno debería invertir más en salud, educación y energía, aunque aumente la deuda del país?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
+    { id: 1, axis: 'Económico', text: '¿El gobierno debería invertir más en salud, educación y energía?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
     { id: 2, axis: 'Económico', text: '¿Es mejor atraer empresas extranjeras que inviertan en el país que aumentar el gasto del gobierno?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
     { id: 3, axis: 'Económico', text: '¿El gobierno debería crear un banco para apoyar a nuevos emprendedores hondureños?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
-    { id: 4, axis: 'Económico', text: '¿Deberían volver las zonas especiales de inversión si ayudan a generar empleo?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
-    { id: 5, axis: 'Económico', text: '¿El desarrollo del país debería enfocarse en grandes obras y en apoyar a las familias hondureñas?', impact_factor: 1.0, weights: { "LIBRE": 2, "Nacional": 3, "Liberal": 2, "PINU-SD": 3, "DC": 5 } },
+    { id: 4, axis: 'Económico', text: '¿Deberían volver las zonas especiales de inversión (ZEDES) si ayudan a generar empleo?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
+    { id: 5, axis: 'Económico', text: '¿Se deben privatizar aquellas empresas estatales que estén reportando pérdidas (ENEE)?', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 4 } },
 
     // --- EJE 2: Política Fiscal y Tributaria ---
     { id: 6, axis: 'Fiscal', text: '¿Las grandes empresas deberían pagar más impuestos para reducir la desigualdad?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
     { id: 7, axis: 'Fiscal', text: '¿Las decisiones sobre impuestos deberían tomarse en diálogo con las empresas y no solo por el gobierno?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 3, "DC": 3 } },
     { id: 8, axis: 'Fiscal', text: '¿Subir impuestos a las empresas puede poner en riesgo los empleos?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
     { id: 9, axis: 'Fiscal', text: '¿El Estado debería seguir dando subsidios en energía o combustibles para ayudar a los más pobres?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 3, "DC": 3 } },
-    { id: 10, axis: 'Fiscal', text: '¿El dinero público debería manejarse por personas seleccionadas por mérito y no por política?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+    { id: 10, axis: 'Fiscal', text: 'Se debe dolarizar la economía', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 2, "PINU-SD": 1, "DC": 5 } },
 
     // --- EJE 3: Seguridad y Derechos Constitucionales ---
-    { id: 11, axis: 'Seguridad', text: '¿Debe mantenerse el estado de excepción para controlar el crimen y la extorsión?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
-    { id: 12, axis: 'Seguridad', text: '¿Está de acuerdo con aplicar medidas más duras contra el crimen, aunque limiten algunas libertades?', impact_factor: 1.3, weights: { "LIBRE": 3, "Nacional": 4, "Liberal": 5, "PINU-SD": 1, "DC": 2 } },
+    { id: 11, axis: 'Seguridad', text: 'Está de acuerdo con aplicar medidas más duras contra el crimen (como el Estado de excepción), aunque limiten algunas libertades?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
+    { id: 12, axis: 'Seguridad', text: '¿Se debe elevar a rango constitucional a la Policía Militar?', impact_factor: 1.3, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
     { id: 13, axis: 'Seguridad', text: '¿La seguridad debería basarse más en educación, oportunidades y justicia que en castigos fuertes?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 1, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
     { id: 14, axis: 'Seguridad', text: '¿El gobierno debería apoyar más a las familias y comunidades para prevenir el crimen?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 2, "Liberal": 2, "PINU-SD": 3, "DC": 5 } },
     { id: 15, axis: 'Seguridad', text: '¿Dar más poder al presidente para temas de seguridad puede ser peligroso para la democracia?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 4, "PINU-SD": 5, "DC": 3 } },
 
     // --- EJE 4: Lucha contra la Corrupción y Justicia ---
     { id: 16, axis: 'Corrupción', text: '¿Se deben eliminar las leyes que protegen a políticos corruptos para que la CICIH funcione?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 4 } },
-    { id: 17, axis: 'Corrupción', text: '¿Los jueces deberían elegirse por capacidad profesional y no por partidos políticos?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+    { id: 17, axis: 'Corrupción', text: 'Los fideicomisos y las Alianza Público Privada son esenciales para el desarrollo.', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 1, "DC": 3 } },
     { id: 18, axis: 'Corrupción', text: '¿Quitar la inmunidad a los políticos podría usarse para perseguir a los opositores?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 1 } },
     { id: 19, axis: 'Corrupción', text: '¿El sistema judicial necesita más independencia y mejores condiciones para jueces y fiscales?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
     { id: 20, axis: 'Corrupción', text: '¿La lucha contra la corrupción debe enfocarse en la transparencia y la ética en el gobierno?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
@@ -416,7 +416,7 @@ const QUESTIONS = [
     // --- EJE 7: Relaciones Internacionales y Migración ---
     { id: 31, axis: 'Internacional', text: '¿Honduras debería acercarse más a países latinoamericanos de izquierda que a Estados Unidos?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 3, "PINU-SD": 2, "DC": 2 } },
     { id: 32, axis: 'Internacional', text: '¿Honduras debería cooperar más con Estados Unidos en temas de seguridad y migración?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
-    { id: 33, axis: 'Internacional', text: '¿El país debería enfocarse en reducir la pobreza para evitar que la gente emigre?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 3, "DC": 3 } },
+    { id: 33, axis: 'Internacional', text: '¿Honduras debería reconocer a China Taiwán?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 1, "DC": 5 } },
     { id: 34, axis: 'Internacional', text: '¿Honduras debería tener una política exterior abierta y sin depender de ningún bloque político?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 5, "PINU-SD": 4, "DC": 3 } },
     { id: 35, axis: 'Internacional', text: '¿Los migrantes deben recibir ayuda humanitaria y protección al pasar por Honduras?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } }
 ];
