@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ideológico Honduras 2025 (TICH)</title>
+    <meta name="description" content="Evalúa tu compatibilidad ideológica con los principales partidos políticos de Honduras (LIBRE, Nacional, Liberal, PINU-SD, DC) para las elecciones de 2025.">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --color-primary-blue: #0073CF;
+            --color-secondary-blue: #004F95;
+            --color-white: #FFFFFF;
+            --color-light-gray: #F4F4F9;
+            --color-text: #333333;
+            --color-neutral: #EBEBEB;
+            --color-libre: #6c0606;
+            --color-nacional: #05779e;
+            --color-liberal: #ff0000;
+            --color-pinu: #ec7e23;
+            --color-dc: #29ac0c;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--color-light-gray);
+            color: var(--color-text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--color-primary-blue);
+            color: var(--color-white);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: var(--color-secondary-blue);
+            border-bottom: 2px solid var(--color-neutral);
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        .section-title {
+            background-color: var(--color-neutral);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--color-secondary-blue);
+        }
+
+        #quiz-container {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-card {
+            border: 1px solid var(--color-neutral);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .question-text {
+            font-size: 1.15em;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .likert-scale {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+
+        .likert-option {
+            flex-grow: 1;
+            padding: 10px 5px;
+            border: 1px solid var(--color-neutral);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            background-color: var(--color-white);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+            font-size: 0.8em;
+            line-height: 1.2;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .likert-option:hover {
+            background-color: var(--color-neutral);
+        }
+
+        .likert-option.selected {
+            background-color: var(--color-primary-blue);
+            color: var(--color-white);
+            border-color: var(--color-secondary-blue);
+            font-weight: bold;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: opacity var(--transition-speed), background-color var(--transition-speed);
+        }
+
+        #prev-btn, #next-btn {
+            background-color: var(--color-primary-blue);
+            color: var(--color-white);
+        }
+
+        #prev-btn:hover, #next-btn:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            background-color: var(--color-neutral);
+            color: #AAAAAA;
+            cursor: not-allowed;
+        }
+
+        #results-container {
+            padding: 30px;
+            background-color: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .result-intro {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: var(--color-secondary-blue);
+        }
+
+        #compatibility-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        .party-result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 1px dashed var(--color-neutral);
+            padding-bottom: 10px;
+        }
+
+        .party-result:last-child {
+            border-bottom: none;
+        }
+
+        .party-name {
+            flex-basis: 30%;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .progress-bar-container {
+            flex-basis: 50%;
+            background-color: var(--color-neutral);
+            border-radius: 5px;
+            margin: 0 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 1s ease-in-out;
+            background-color: var(--color-libre);
+        }
+        
+        .progress-bar[data-party="Nacional"] { background-color: var(--color-nacional); }
+        .progress-bar[data-party="Liberal"] { background-color: var(--color-liberal); }
+        .progress-bar[data-party="PINU-SD"] { background-color: var(--color-pinu); }
+        .progress-bar[data-party="DC"] { background-color: var(--color-dc); }
+
+        .compatibility-score {
+            flex-basis: 20%;
+            font-weight: bold;
+        }
+
+        #radar-chart-container {
+            max-width: 400px;
+            margin: 40px auto;
+        }
+
+        #progress-indicator {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--color-secondary-blue);
+        }
+
+        #progress-bar-full {
+            height: 8px;
+            background-color: var(--color-neutral);
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--color-primary-blue);
+            transition: width var(--transition-speed) ease-in-out;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .likert-scale {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .likert-option {
+                padding: 15px 10px;
+                font-size: 0.9em;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .party-result {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .party-name, .compatibility-score {
+                flex-basis: 100%;
+                text-align: left;
+                margin-bottom: 5px;
+            }
+
+            .progress-bar-container {
+                width: 100%;
+                margin: 5px 0 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Test Ideológico Honduras 2025 (TICH)</h1>
+            <p>Descubre tu compatibilidad con los candidatos y partidos políticos hondureños.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="quiz-container">
+            <div id="progress-indicator">
+                <span id="current-question-text"></span>
+                <div id="progress-bar-full"><div id="progress-fill"></div></div>
+            </div>
+
+            <div id="question-area"></div>
+
+            <div class="navigation">
+                <button id="prev-btn" disabled>← Anterior</button>
+                <button id="next-btn" disabled>Siguiente →</button>
+            </div>
+        </div>
+
+        <div id="results-container" style="display:none;">
+            <h2>Resultados de Compatibilidad Ideológica</h2>
+            <p class="result-intro">Tu afinidad ideológica con los partidos en los 7 ejes temáticos es la siguiente:</p>
+
+            <div id="radar-chart-container">
+                <canvas id="ideology-radar-chart"></canvas>
+            </div>
+
+            <ul id="compatibility-list"></ul>
+
+            <div id="main-result"></div>
+
+            <div style="margin-top: 30px; font-size: 0.9em; color: #666;">
+                <p>La afinidad se calcula usando la Distancia Manhattan Ponderada, comparando sus respuestas con las posturas públicas de los partidos en cada eje temático (0% a 100%).</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container" style="text-align: center; color: #666; font-size: 0.8em; margin-top: 40px;">
+            <p>&copy; 2025 Test Ideológico TICH. Análisis basado en plataformas públicas y posturas ideológicas.</p>
+        </div>
+    </footer>
+
+<script>
+    // Datos de ejemplo - DEBES REEMPLAZAR ESTO CON TUS DATOS REALES
+    const PARTIES = ["LIBRE", "Nacional", "Liberal", "PINU-SD", "DC"];
+    
+    const PARTY_NAMES = {
+        "LIBRE": "Libertad y Refundación (LIBRE)",
+        "Nacional": "Partido Nacional (PNH)",
+        "Liberal": "Partido Liberal (PLH)",
+        "PINU-SD": "PINU-SD",
+        "DC": "Democracia Cristiana (DC)"
+    };
+    
+    const PARTY_COLORS = {
+        "LIBRE": 'rgb(139, 0, 0)',
+        "Nacional": 'rgb(0, 153, 204)',
+        "Liberal": 'rgb(255, 0, 0)',
+        "PINU-SD": 'rgb(255, 165, 0)',
+        "DC": 'rgb(0, 255, 0)'
+    };
+    
+    const AXIS_TITLES = {
+        'Económico': 'Eje 1: Modelo Económico y Rol del Estado',
+        'Fiscal': 'Eje 2: Política Fiscal y Tributaria',
+        'Seguridad': 'Eje 3: Seguridad y Derechos Constitucionales',
+        'Corrupción': 'Eje 4: Lucha contra la Corrupción y Justicia',
+        'Institucional': 'Eje 5: Reforma Institucional y Meritocracia',
+        'Social': 'Eje 6: Derechos Sociales y Sexuales',
+        'Internacional': 'Eje 7: Relaciones Internacionales y Migración'
+    };
+
+    const LIKERT_OPTIONS = [
+        { value: 1, label: "Totalmente en Desacuerdo (TD)" },
+        { value: 2, label: "En Desacuerdo (ED)" },
+        { value: 3, label: "Neutral (NN)" },
+        { value: 4, label: "De Acuerdo (DA)" },
+        { value: 5, label: "Totalmente de Acuerdo (TA)" }
+    ];
+
+// CUESTIONARIO DE IDEONEIDAD IDEOLÓGICA - VERSIÓN SIMPLIFICADA
+const QUESTIONS = [
+    // --- EJE 1: Modelo Económico y Rol del Estado ---
+    { id: 1, axis: 'Económico', text: '¿El gobierno debería invertir más en salud, educación y energía, aunque aumente la deuda del país?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
+    { id: 2, axis: 'Económico', text: '¿Es mejor atraer empresas extranjeras que inviertan en el país que aumentar el gasto del gobierno?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
+    { id: 3, axis: 'Económico', text: '¿El gobierno debería crear un banco para apoyar a nuevos emprendedores hondureños?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
+    { id: 4, axis: 'Económico', text: '¿Deberían volver las zonas especiales de inversión si ayudan a generar empleo?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
+    { id: 5, axis: 'Económico', text: '¿El desarrollo del país debería enfocarse en grandes obras y en apoyar a las familias hondureñas?', impact_factor: 1.0, weights: { "LIBRE": 2, "Nacional": 3, "Liberal": 2, "PINU-SD": 3, "DC": 5 } },
+
+    // --- EJE 2: Política Fiscal y Tributaria ---
+    { id: 6, axis: 'Fiscal', text: '¿Las grandes empresas deberían pagar más impuestos para reducir la desigualdad?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
+    { id: 7, axis: 'Fiscal', text: '¿Las decisiones sobre impuestos deberían tomarse en diálogo con las empresas y no solo por el gobierno?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 5, "PINU-SD": 3, "DC": 3 } },
+    { id: 8, axis: 'Fiscal', text: '¿Subir impuestos a las empresas puede poner en riesgo los empleos?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
+    { id: 9, axis: 'Fiscal', text: '¿El Estado debería seguir dando subsidios en energía o combustibles para ayudar a los más pobres?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 3, "DC": 3 } },
+    { id: 10, axis: 'Fiscal', text: '¿El dinero público debería manejarse por personas seleccionadas por mérito y no por política?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+
+    // --- EJE 3: Seguridad y Derechos Constitucionales ---
+    { id: 11, axis: 'Seguridad', text: '¿Debe mantenerse el estado de excepción para controlar el crimen y la extorsión?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 4, "Liberal": 3, "PINU-SD": 1, "DC": 2 } },
+    { id: 12, axis: 'Seguridad', text: '¿Está de acuerdo con aplicar medidas más duras contra el crimen, aunque limiten algunas libertades?', impact_factor: 1.3, weights: { "LIBRE": 3, "Nacional": 4, "Liberal": 5, "PINU-SD": 1, "DC": 2 } },
+    { id: 13, axis: 'Seguridad', text: '¿La seguridad debería basarse más en educación, oportunidades y justicia que en castigos fuertes?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 1, "Liberal": 2, "PINU-SD": 5, "DC": 4 } },
+    { id: 14, axis: 'Seguridad', text: '¿El gobierno debería apoyar más a las familias y comunidades para prevenir el crimen?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 2, "Liberal": 2, "PINU-SD": 3, "DC": 5 } },
+    { id: 15, axis: 'Seguridad', text: '¿Dar más poder al presidente para temas de seguridad puede ser peligroso para la democracia?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 4, "PINU-SD": 5, "DC": 3 } },
+
+    // --- EJE 4: Lucha contra la Corrupción y Justicia ---
+    { id: 16, axis: 'Corrupción', text: '¿Se deben eliminar las leyes que protegen a políticos corruptos para que la CICIH funcione?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 4 } },
+    { id: 17, axis: 'Corrupción', text: '¿Los jueces deberían elegirse por capacidad profesional y no por partidos políticos?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+    { id: 18, axis: 'Corrupción', text: '¿Quitar la inmunidad a los políticos podría usarse para perseguir a los opositores?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 1 } },
+    { id: 19, axis: 'Corrupción', text: '¿El sistema judicial necesita más independencia y mejores condiciones para jueces y fiscales?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
+    { id: 20, axis: 'Corrupción', text: '¿La lucha contra la corrupción debe enfocarse en la transparencia y la ética en el gobierno?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
+
+    // --- EJE 5: Reforma Institucional y Meritocracia ---
+    { id: 21, axis: 'Institucional', text: '¿Los puestos públicos deberían darse por mérito y estudios, no por contactos políticos?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+    { id: 22, axis: 'Institucional', text: '¿Las escuelas deberían enseñar más valores cívicos además de materias técnicas?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 3, "PINU-SD": 4, "DC": 5 } },
+    { id: 23, axis: 'Institucional', text: '¿El Congreso debería forzar acuerdos políticos si es necesario para lograr cambios importantes?', impact_factor: 1.2, weights: { "LIBRE": 4, "Nacional": 2, "Liberal": 4, "PINU-SD": 1, "DC": 2 } },
+    { id: 24, axis: 'Institucional', text: '¿El Consejo Nacional Electoral debería tener técnicos independientes y no gente de partidos?', impact_factor: 1.1, weights: { "LIBRE": 2, "Nacional": 3, "Liberal": 3, "PINU-SD": 5, "DC": 4 } },
+    { id: 25, axis: 'Institucional', text: '¿El país debería continuar con planes de empleo y tecnología como el Honduras 20/20?', impact_factor: 1.0, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 3, "PINU-SD": 2, "DC": 2 } },
+
+    // --- EJE 6: Derechos Sociales y Sexuales ---
+    { id: 26, axis: 'Social', text: '¿Debería permitirse el uso de la píldora de emergencia y debatirse el aborto por razones médicas?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 4, "DC": 1 } },
+    { id: 27, axis: 'Social', text: '¿El matrimonio entre personas del mismo sexo no debería ser permitido en Honduras?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 2, "DC": 5 } },
+    { id: 28, axis: 'Social', text: '¿El gobierno debería proteger activamente a las personas LGBTIQ+ contra la violencia y la discriminación?', impact_factor: 1.3, weights: { "LIBRE": 5, "Nacional": 2, "Liberal": 2, "PINU-SD": 4, "DC": 3 } },
+    { id: 29, axis: 'Social', text: '¿Se debe mantener la prohibición total del aborto y del matrimonio igualitario?', impact_factor: 1.2, weights: { "LIBRE": 1, "Nacional": 5, "Liberal": 4, "PINU-SD": 1, "DC": 5 } },
+    { id: 30, axis: 'Social', text: '¿Las políticas sociales deberían centrarse en apoyar a las familias y valores cristianos?', impact_factor: 1.1, weights: { "LIBRE": 1, "Nacional": 2, "Liberal": 3, "PINU-SD": 2, "DC": 5 } },
+
+    // --- EJE 7: Relaciones Internacionales y Migración ---
+    { id: 31, axis: 'Internacional', text: '¿Honduras debería acercarse más a países latinoamericanos de izquierda que a Estados Unidos?', impact_factor: 1.2, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 3, "PINU-SD": 2, "DC": 2 } },
+    { id: 32, axis: 'Internacional', text: '¿Honduras debería cooperar más con Estados Unidos en temas de seguridad y migración?', impact_factor: 1.2, weights: { "LIBRE": 2, "Nacional": 5, "Liberal": 4, "PINU-SD": 3, "DC": 3 } },
+    { id: 33, axis: 'Internacional', text: '¿El país debería enfocarse en reducir la pobreza para evitar que la gente emigre?', impact_factor: 1.1, weights: { "LIBRE": 5, "Nacional": 1, "Liberal": 2, "PINU-SD": 3, "DC": 3 } },
+    { id: 34, axis: 'Internacional', text: '¿Honduras debería tener una política exterior abierta y sin depender de ningún bloque político?', impact_factor: 1.1, weights: { "LIBRE": 3, "Nacional": 3, "Liberal": 5, "PINU-SD": 4, "DC": 3 } },
+    { id: 35, axis: 'Internacional', text: '¿Los migrantes deben recibir ayuda humanitaria y protección al pasar por Honduras?', impact_factor: 1.0, weights: { "LIBRE": 3, "Nacional": 2, "Liberal": 3, "PINU-SD": 4, "DC": 5 } }
+];
+
+
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let isQuizCompleted = false;
+
+    const questionArea = document.getElementById('question-area');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const progressFill = document.getElementById('progress-fill');
+    const currentQuestionText = document.getElementById('current-question-text');
+
+    function loadState() {
+        const savedAnswers = sessionStorage.getItem('tichUserAnswers');
+        const savedIndex = sessionStorage.getItem('tichCurrentIndex');
+        const savedCompletion = sessionStorage.getItem('tichCompleted');
+
+        if (savedAnswers && savedIndex) {
+            userAnswers = JSON.parse(savedAnswers);
+            currentQuestionIndex = parseInt(savedIndex);
+            isQuizCompleted = savedCompletion === 'true';
+
+            if (isQuizCompleted) {
+                showResults();
+            } else {
+                renderQuestion(currentQuestionIndex);
+                if (currentQuestionIndex > 0) {
+                    alert(`Progreso encontrado. Reanudando en la pregunta ${currentQuestionIndex + 1}/${QUESTIONS.length}.`);
+                }
+            }
+        } else {
+            renderQuestion(currentQuestionIndex);
+        }
+    }
+
+    function saveState() {
+        sessionStorage.setItem('tichUserAnswers', JSON.stringify(userAnswers));
+        sessionStorage.setItem('tichCurrentIndex', currentQuestionIndex.toString());
+        sessionStorage.setItem('tichCompleted', isQuizCompleted.toString());
+    }
+
+    function renderQuestion(index) {
+        if (index < 0 || index >= QUESTIONS.length) return;
+
+        const question = QUESTIONS[index];
+        const axisTitle = AXIS_TITLES[question.axis] || 'Pregunta General';
+        const currentAnswer = userAnswers[question.id];
+
+        const getShortLabel = (label) => {
+            const match = label.match(/\(([^)]+)\)/);
+            return match ? match[1] : label;
+        };
+
+        questionArea.innerHTML = `
+            <div class="section-title">${axisTitle}</div>
+            <div class="question-card">
+                <div class="question-text">
+                    <strong>${index + 1}/${QUESTIONS.length}.</strong> ${question.text}
+                </div>
+                <div class="likert-scale">
+                    ${LIKERT_OPTIONS.map(option => `
+                        <div class="likert-option ${currentAnswer === option.value ? 'selected' : ''}" 
+                             data-value="${option.value}"
+                             title="${option.label}"
+                             onclick="handleAnswerClick(${question.id}, ${option.value})">
+                            ${getShortLabel(option.label)}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        updateNavigation();
+        updateProgress();
+    }
+
+    function handleAnswerClick(questionId, value) {
+        userAnswers[questionId] = value;
+        saveState();
+
+        const questionCard = questionArea.querySelector('.question-card');
+        questionCard.querySelectorAll('.likert-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        questionCard.querySelector(`.likert-option[data-value="${value}"]`).classList.add('selected');
+
+        updateNavigation();
+    }
+
+    function updateNavigation() {
+        prevBtn.disabled = currentQuestionIndex === 0;
+
+        const currentQuestion = QUESTIONS[currentQuestionIndex];
+        const isAnswered = !!userAnswers[currentQuestion.id];
+        
+        if (currentQuestionIndex === QUESTIONS.length - 1) {
+            nextBtn.textContent = 'Ver Resultados';
+            nextBtn.disabled = !isAnswered;
+        } else {
+            nextBtn.textContent = 'Siguiente →';
+            nextBtn.disabled = !isAnswered;
+        }
+    }
+
+    function updateProgress() {
+        const total = QUESTIONS.length;
+        const current = currentQuestionIndex + 1;
+        const answeredCount = Object.keys(userAnswers).length;
+
+        currentQuestionText.textContent = `Pregunta ${current} de ${total}`;
+        const percentage = (answeredCount / total) * 100;
+
+        progressFill.style.width = `${percentage.toFixed(1)}%`;
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion(currentQuestionIndex);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        const currentQuestion = QUESTIONS[currentQuestionIndex];
+        if (!userAnswers[currentQuestion.id]) {
+            alert("Por favor, selecciona una opción antes de continuar.");
+            return;
+        }
+
+        if (currentQuestionIndex < QUESTIONS.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion(currentQuestionIndex);
+        } else if (currentQuestionIndex === QUESTIONS.length - 1) {
+            isQuizCompleted = true;
+            saveState();
+            showResults();
+        }
+    });
+
+    function calculateCompatibility() {
+        const results = {};
+        let totalMaxDeviation = 0;
+        const maxAxisDeviation = {};
+
+        for (const axis of Object.keys(AXIS_TITLES)) {
+            maxAxisDeviation[axis] = 0;
+        }
+
+        QUESTIONS.forEach(q => {
+            const maxDiff = 4 * q.impact_factor;
+            totalMaxDeviation += maxDiff;
+            maxAxisDeviation[q.axis] += maxDiff;
+        });
+
+        PARTIES.forEach(party => {
+            let partyDeviation = 0;
+            const partyAxisDeviation = {};
+
+            for (const axis of Object.keys(AXIS_TITLES)) {
+                partyAxisDeviation[axis] = 0;
+            }
+
+            QUESTIONS.forEach(q => {
+                const userR = userAnswers[q.id];
+                const partyRI = q.weights[party];
+                const deviation = Math.abs(userR - partyRI) * q.impact_factor;
+                
+                partyDeviation += deviation;
+                partyAxisDeviation[q.axis] += deviation;
+            });
+            
+            const compatibilityScore = 100 * (1 - (partyDeviation / totalMaxDeviation));
+            
+            const axisCompatibility = {};
+            for (const axis of Object.keys(AXIS_TITLES)) {
+                const maxD = maxAxisDeviation[axis];
+                const currentD = partyAxisDeviation[axis];
+                axisCompatibility[axis] = Math.max(0, 100 * (1 - (currentD / maxD)));
+            }
+
+            results[party] = {
+                score: Math.max(0, compatibilityScore),
+                axis: axisCompatibility
+            };
+        });
+
+        return results;
+    }
+
+    function showResults() {
+        const compatibilityData = calculateCompatibility();
+        const sortedResults = PARTIES.map(p => ({
+            name: p,
+            displayName: PARTY_NAMES[p],
+            score: compatibilityData[p].score,
+            axisScores: compatibilityData[p].axis
+        })).sort((a, b) => b.score - a.score);
+
+        quizContainer.style.display = 'none';
+        resultsContainer.style.display = 'block';
+
+        const listHTML = sortedResults.map(r => `
+            <li class="party-result">
+                <span class="party-name">${r.displayName}</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" 
+                         style="width: ${r.score.toFixed(1)}%;"
+                         data-party="${r.name}">
+                    </div>
+                </div>
+                <span class="compatibility-score" style="color: ${PARTY_COLORS[r.name]};">${r.score.toFixed(1)}%</span>
+            </li>
+        `).join('');
+        document.getElementById('compatibility-list').innerHTML = listHTML;
+
+        const highestParty = sortedResults[0];
+        const topAxes = Object.entries(highestParty.axisScores)
+                          .sort(([, a], [, b]) => b - a)
+                          .slice(0, 2);
+
+        const mainResultHTML = `
+            <h2>Tu Partido Más Afín: <span style="color: ${PARTY_COLORS[highestParty.name]};">${highestParty.displayName}</span></h2>
+            <p style="font-size: 1.5em; color: ${PARTY_COLORS[highestParty.name]};">
+                Tienes un <strong>${highestParty.score.toFixed(1)}%</strong> de compatibilidad ideológica general.
+            </p>
+            <p>
+                Tu afinidad es particularmente fuerte en:
+                <br><strong>${AXIS_TITLES[topAxes[0][0]].split(': ')[1]} (${topAxes[0][1].toFixed(0)}%)</strong>
+                <br>y <strong>${AXIS_TITLES[topAxes[1][0]].split(': ')[1]} (${topAxes[1][1].toFixed(0)}%)</strong>.
+            </p>
+            <button onclick="window.location.reload(); sessionStorage.clear();" style="background-color: var(--color-secondary-blue); color: var(--color-white); margin-top: 20px;">
+                Reiniciar Test
+            </button>
+        `;
+        document.getElementById('main-result').innerHTML = mainResultHTML;
+
+        renderRadarChart(compatibilityData);
+    }
+    
+    function renderRadarChart(compatibilityData) {
+        const ctx = document.getElementById('ideology-radar-chart').getContext('2d');
+        const axisLabels = Object.values(AXIS_TITLES).map(title => title.split(': ')[1]);
+        
+        const datasets = PARTIES.map(partyName => {
+            const partyColor = PARTY_COLORS[partyName];
+            const partyAxisScore = compatibilityData[partyName].axis;
+            
+            const data = Object.keys(AXIS_TITLES).map(axisKey => partyAxisScore[axisKey].toFixed(1));
+
+            return {
+                label: PARTY_NAMES[partyName],
+                data: data,
+                backgroundColor: partyColor.replace('rgb', 'rgba').replace(')', ', 0.2)'),
+                borderColor: partyColor,
+                pointBackgroundColor: partyColor,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: partyColor
+            };
+        });
+
+        if (window.myRadarChart) {
+            window.myRadarChart.destroy();
+        }
+
+        const data = {
+            labels: axisLabels,
+            datasets: datasets
+        };
+
+        const config = {
+            type: 'radar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                elements: {
+                    line: { borderWidth: 3 }
+                },
+                scales: {
+                    r: {
+                        angleLines: { display: true, color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 10 } },
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            showLabelBackdrop: false,
+                            font: { size: 10 },
+                            callback: function(value) { return value + '%'; }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: true, position: 'bottom', labels: { font: { size: 12 } } },
+                    title: {
+                        display: true,
+                        text: 'Alineación por Eje Ideológico (0% a 100%)',
+                        font: { size: 14, weight: 'bold' },
+                        color: '#004F95'
+                    }
+                }
+            }
+        };
+
+        window.myRadarChart = new Chart(ctx, config);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadState);
+</script>
+</body>
+</html>
