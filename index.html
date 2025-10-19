@@ -472,8 +472,8 @@ const QUESTIONS = [
         const currentAnswer = userAnswers[question.id];
 
         const getShortLabel = (label) => {
-            const match = label.match(/\(([^)]+)\)/);
-            return match ? match[1] : label;
+            const match = label.match(/^(.*?)\s*\([^)]*\)\s*$/);
+            return match ? match[1].trim() : label.trim();
         };
 
         questionArea.innerHTML = `
